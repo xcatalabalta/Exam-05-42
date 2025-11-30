@@ -1,0 +1,356 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bigint.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/01 05:51:40 by fcatala-          #+#    #+#             */
+/*   Updated: 2025/11/01 18:06:14 by fcatala-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef BIGINT_HPP
+# define BIGINT_HPP
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+class bigint
+{
+	private:
+		std::vector<int> digits;
+	public:
+		bigint();
+		bigint(unsigned int num);
+		bigint(const bigint& other);
+		~bigint();
+		
+		bigint& operator=(const bigint& other);
+		const std::vector<int>& getDigits() const;
+		bigint operator+(const bigint& rh) const;
+		bigint& operator+=(const bigint& other);
+		bigint& operator++();
+		bigint operator++(int);
+		bigint operator<<(const unsigned int shift) const;
+		bigint operator<<(const bigint& other) const;
+		bigint& operator<<=(const unsigned int shift);
+		bigint& operator<<=(const bigint& other);
+		bigint operator>>(const unsigned int shift) const;
+		bigint operator>>(const bigint& other) const;
+		bigint& operator>>=(const unsigned int shift);
+		bigint& operator>>=(const bigint& other);
+		const unsigned int getInt() const;
+		bool operator>(const bigint& other) const;
+		bool operator>=(const bigint& other) const;
+		bool operator<(const bigint& other) const;
+		bool operator<=(const bigint& other) const;
+		bool operator==(const bigint& other) const;
+		bool operator!=(const bigint& other) const;
+
+
+};
+std::ostream& operator<<(std::ostream& os, const bigint& num);
+#endif
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bigint.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/01 06:38:25 by fcatala-          #+#    #+#             */
+/*   Updated: 2025/11/01 18:08:07 by fcatala-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "bigint.hpp"
+
+bigint::bigint() : digits(1, 0)
+{}
+
+bigint::bigint(unsigned int num)
+{
+	if (num == 0)
+	{
+		digits.push_back(0);
+		return;
+	}
+	while (num > 0)
+	{
+		digits.push_back(num % 10);
+		num /= 10;
+	}
+	return;
+}
+
+bigint::bigint(const bigint &other) : digits(other.digits)
+{}
+
+bigint::~bigint()
+{}
+
+bigint& bigint::operator=(const bigint& other)
+{
+	if (this != &other)
+	{
+		digits = other.digits;
+	}
+	return (*this);
+}
+
+const std::vector<int>& bigint::getDigits() const
+{
+	return digits;
+}
+
+bigint bigint::operator+(const bigint& rh) const
+{
+	bigint output;
+	output.digits.clear();
+	unsigned int carry = 0;
+	unsigned int sum = 0;
+	size_t top = std::max(digits.size(), rh.digits.size());
+	for (size_t i = 0; i < top || carry; ++i)
+	{
+		sum = carry;
+		if (i < digits.size())
+		{
+			sum += digits[i];
+		}
+		if (i < rh.digits.size())
+		{
+			sum += rh.digits[i];
+		}
+		output.digits.push_back(sum % 10);
+		carry = sum /10;
+	}
+	return output;
+}
+
+bigint& bigint::operator+=(const bigint& other)
+{
+	*this = *this + other;
+	return *this;
+}
+
+bigint& bigint::operator++()
+{
+	return *this += bigint(1);
+}
+
+bigint bigint::operator++(int)
+{
+	bigint temp(*this);
+	++(*this);
+	return temp;
+}
+
+bigint bigint::operator<<(const unsigned int shift) const
+{
+	if (shift <= 0 || this->getInt() == 0)
+	{
+		return *this;
+	}
+	bigint temp(*this);
+	temp.digits.insert(temp.digits.begin(), shift, 0);
+	return temp;
+}
+
+bigint bigint::operator<<(const bigint &shift) const
+{
+	return *this << shift.getInt();
+}
+
+
+bigint& bigint::operator<<=(const unsigned int shift)
+{
+	if (shift <= 0 || this->getInt() == 0)
+	{
+		return *this;
+	}
+	digits.insert(digits.begin(), shift, 0);
+	return *this;
+}
+
+bigint& bigint::operator<<=(const bigint& other)
+{
+	return *this <<= other.getInt();
+}
+
+const unsigned int bigint::getInt() const
+{
+	unsigned int result = 0;
+	int multip = 1;
+	size_t top = digits.size();
+
+	for (size_t i = 0; i < top; ++i)
+	{
+		result += digits[i] * multip;
+		multip *= 10;
+	}
+	return result;
+}
+bigint bigint::operator>>(const unsigned int shift) const
+{
+	if (shift <= 0 || this->getInt() == 0)
+	{
+		return *this;
+	}
+	if (shift >= digits.size())
+	{
+		bigint buit(0);
+		return buit;
+	}
+	bigint temp(*this);
+	temp.digits.erase(temp.digits.begin(), temp.digits.begin() + shift);
+	return temp;
+}
+
+bigint bigint::operator>>(const bigint &shift) const
+{
+	return *this >> shift.getInt();
+}
+
+bigint& bigint::operator>>=(const unsigned int shift)
+{
+	if (shift <= 0 || this->getInt() == 0)
+	{
+		return *this;
+	}
+	if (shift >= digits.size())
+	{
+		digits.clear();
+		digits[0] = 0;
+	}
+	else
+		digits.erase(digits.begin(), digits.begin() + shift);
+	return *this;
+}
+
+bigint& bigint::operator>>=(const bigint& other)
+{
+	return *this >>= other.getInt();
+}
+
+bool bigint::operator>(const bigint& other) const
+{
+	return (this->getInt() > other.getInt());
+}
+
+bool bigint::operator>=(const bigint& other) const
+{
+	return (this->getInt() >= other.getInt());
+}
+
+bool bigint::operator<(const bigint& other) const
+{
+	return (this->getInt() < other.getInt());
+}
+
+bool bigint::operator<=(const bigint& other) const
+{
+	return (this->getInt() <= other.getInt());
+}
+
+bool bigint::operator==(const bigint& other) const
+{
+	return (this->getInt() == other.getInt());
+}
+
+bool bigint::operator!=(const bigint& other) const
+{
+	return (this->getInt() != other.getInt());
+}
+
+
+std::ostream& operator<<(std::ostream& os, const bigint& num)
+{
+	const std::vector<int>& out = num.getDigits();
+	if (out.empty())
+	{
+		os << 0;
+		return os;
+	}
+	for (int i = out.size() -1; i >= 0; --i)
+	{
+		os << out[i];
+	}
+	return os;
+}
+
+#include "bigint.hpp"
+
+int main(void)
+{
+	//unsigned int w = +69;
+	const bigint a(42);
+	bigint b(21), c, d(1337), e(d), ww, z(4294967295);
+
+	// base test
+	std::cout << "a = " << a << std::endl;
+	std::cout << "b = " << b << std::endl;
+	std::cout << "c = " << c << std::endl;
+	std::cout << "d = " << d << std::endl;
+	std::cout << "e = " << e << std::endl;
+	std::cout << "z = " << z << std::endl;
+
+	std::cout << "a + b = " << a + b << std::endl;
+	std::cout << "a + c = " << a + c << std::endl;
+	std::cout << "d + a = " << d + a << std::endl;
+	std::cout << "a + d = " << a + d << std::endl;
+	std::cout << "c + c = " << c + c << std::endl;
+	std::cout << "z + z = " << (z + z) << std::endl;
+	std::cout << "(c += a) = " << (c += a) << std::endl;
+	std::cout << "c = " << c << std::endl;
+	std::cout << "b = " << b << std::endl;
+	std::cout << "++b = " << ++b << std::endl;
+	std::cout << "b++ = " << b++ << std::endl;
+	std::cout << "b = " << b << std::endl;
+	std::cout << "b + 13 = " << b + 13 << std::endl;
+	std::cout << "(b + 13) << 2 = " << ((b + 13) << 2) << std::endl; 
+	// b = 23, b << 10 -> 23000000000 + 42 = 23000000042
+	std::cout << "(b << 2) + 42 = " << ((b << 2) + 42) << std::endl;
+	std::cout << "(b + 13) << 3 + 12 = " << (((b + 13) << 3) + 12) << std::endl;
+	std::cout << "(d <<= 4) = " << (d <<= 4) << ", d: " << d << std::endl;
+	std::cout << "d as Int = " << d.getInt() <<std::endl;
+	std::cout << "Should be 2 => " << (const bigint)2 << std::endl;
+	std::cout << "b = " << b << std::endl;
+	std::cout << "b << 2 (from big int) = " << (b << (const bigint)2) << std::endl; 
+	std::cout << "b = " << b << std::endl;
+	std::cout << "b <<= 2 (from big int) = " << (b <<= (const bigint)2) << " b = " << b << std::endl; 
+	std::cout << "(d <<= 2) = " << (d <<= (const bigint)2) << ", d: " << d << std::endl;
+	std::cout << "(d >> 4) = " << (d >> 4) << ", d: " << d << std::endl;
+	std::cout << "(d >> 400) = " << (d >> 400) << ", d: " << d << std::endl;
+	std::cout << "ww = " << ww << " ww <<= 2 " << (ww <<= 2) << std::endl;
+	std::cout << "ww = " << ww << " ww >> 7 " << (ww >> 7) << std::endl;
+	std::cout << "ww = " << ww << " ww >>= 7 " << (ww >>= 7) << " ww = " << ww << std::endl;
+	std::cout << "d += 196 " << (d += 196) << " where d is now  "<< d << std::endl;
+	std::cout << "(d >>= 2) = " << (d >>= (const bigint)2) << ", d: " << d << std::endl;
+	std::cout << "d >>= 125 = " << (d >>= 125) << " d = " << d << std::endl;
+
+	std::cout << "a = " << a << std::endl; // a = 42
+	std::cout << "d = " << d << std::endl; // d = 5348
+
+	std::cout << "(d < a) = " << (d < a) << std::endl; // (d < a) = 0
+	std::cout << "(d > a) = " << (d > a) << std::endl; // (d > a) = 1
+	std::cout << "(d == d) = " << (d == d) << std::endl; // (d == d) = 1
+	std::cout << "(d != a) = " << (d != a) << std::endl; // (d != a) = 1
+	std::cout << "(d <= a) = " << (d <= a) << std::endl; // (d <= a) = 0
+	std::cout << "(d >= a) = " << (d >= a) << std::endl; // (d >= a) = 1
+
+	// extra
+	bigint x(12345678); bigint y(5);
+	std::cout << "New fellows aboard: x = " << x << " and y = " << y << std::endl;
+	std::cout << "(x << y) = " << (x << y) << ", x: " << x << ", y: " << y << std::endl;
+	std::cout << "(x >> y) = " << (x >> y) << ", x: " << x << ", y: " << y << std::endl;
+	std::cout << "(x >>= y) = " << (x >>= y) << ", x: " << x << ", y: " << y << std::endl;
+	std::cout << "(x >= y) = " << (x >= y) << ", x: " << x << ", y: " << y << std::endl;
+
+	std::cout << "x <<= 5 x= " << (x <<= 5) << ", y << 12 y= " << (y <<= 12) << std::endl;
+	std::cout << "(x >= y) = " << (x >= y) << ", x: " << x << ", y: " << y << std::endl;
+
+	return (0);
+}
