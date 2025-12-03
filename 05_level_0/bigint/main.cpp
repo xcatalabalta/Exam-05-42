@@ -41,7 +41,7 @@ int main(void)
 	std::cout << "b + 13 = " << b + 13 << std::endl;
 	std::cout << "(b + 13) << 2 = " << ((b + 13) << 2) << std::endl; 
 	// b = 23, b << 10 -> 23000000000 + 42 = 23000000042
-	std::cout << "(b << 2) + 42 = " << ((b << 2) + 42) << std::endl;
+	std::cout << "(b << 10) + 42 = " << ((b << 10) + 42) << std::endl;
 	std::cout << "(b + 13) << 3 + 12 = " << (((b + 13) << 3) + 12) << std::endl;
 	std::cout << "(d <<= 4) = " << (d <<= 4) << ", d: " << d << std::endl;
 	std::cout << "d as Int = " << d.getInt() <<std::endl;
