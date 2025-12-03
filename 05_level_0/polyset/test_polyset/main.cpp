@@ -36,14 +36,19 @@ int main(int argc, char **argv) {
 	a->clear();
   set sa(*a);
   set st(*t);
-/*  for (int i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     st.insert(atoi(argv[i]));
     sa.insert(atoi(argv[i]));
-
-    sa.has(atoi(argv[i]));
+	int v = atoi(argv[i]);
+    std::cout 	<< "Search if " << v << " is in sa (must be 1) " 
+				<< sa.has(atoi(argv[i])) << std::endl;
+    std::cout 	<< "Search if " << v << " is in st (must be 1) " 
+				<< st.has(atoi(argv[i])) << std::endl;
     sa.print();
     sa.get_bag().print();
     st.print();
+    std::cout << std::endl;
+  }
     sa.clear();
     sa.insert(
         (int[]){
@@ -53,8 +58,23 @@ int main(int argc, char **argv) {
             4,
         },
         4);
+    sa.print();
     std::cout << std::endl;
-  }
-*/
+    st.insert(
+        (int[]){
+            1,
+            2,
+            3,
+            4,
+			85,
+			42,
+			42,
+        },
+        7);
+    st.print();
+	sa.insert(666);
+	sa.print();
+  
+
   return 0;
 }
