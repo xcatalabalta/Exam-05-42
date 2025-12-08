@@ -6,18 +6,21 @@
 /*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/30 10:15:42 by fcatala-          #+#    #+#             */
-/*   Updated: 2025/11/30 11:53:42 by fcatala-         ###   ########.fr       */
+/*   Updated: 2025/12/08 09:34:27 by fcatala-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
+/*
 void putchar(int c);
 int atoi(const char *str);
 ssize_t read(int fd, void *buf, size_t count);
 void *malloc(size_t size);
 void free(void *ptr);
+*/
 
 typedef struct {
     int x;
@@ -111,16 +114,16 @@ int main(int argc, char **argv)
     
     unsigned char **board = malloc(h * sizeof(unsigned char *));
     for (int i = 0; i < h; i++)
-        board[i] = malloc(w * sizeof(unsigned char));
+        //board[i] = malloc(w * sizeof(unsigned char));
+        board[i] = calloc(sizeof(unsigned char), w);
     
-    init_board(board, w, h);
+    //init_board(board, w, h);
     
     Pen pen = {0, 0, 0};
     draw_board(board, w, h, &pen);
     
     for (int i = 0; i < iterations; i++)
         evolve(board, w, h);
-    
     show_board(board, w, h);
     
     for (int i = 0; i < h; i++)

@@ -2,10 +2,14 @@
 
 int main(int argc, char **argv)
 {
-    if (argc == 1) {
+    if (argc == 1) 
+	{
         process_stdin();
-    } else {
-        for (int i = 1; i < argc; i++) {
+    } 
+	else 
+	{
+        for (int i = 1; i < argc; i++) 
+		{
             process_file(argv[i]);
             if (i < argc - 1)
                 printf("\n");
@@ -17,7 +21,8 @@ int main(int argc, char **argv)
 void process_file(char *filename)
 {
     FILE *fp = fopen(filename, "r");
-    if (!fp) {
+    if (!fp) 
+	{
         fprintf(stderr, "map error\n");
         return;
     }
@@ -25,12 +30,14 @@ void process_file(char *filename)
     t_map *map = read_map(fp);
     fclose(fp);
     
-    if (!map) {
+    if (!map) 
+	{
         fprintf(stderr, "map error\n");
         return;
     }
     
-    if (!solve_bsq(map)) {
+    if (!solve_bsq(map)) 
+	{
         fprintf(stderr, "map error\n");
         free_map(map);
         return;
@@ -44,12 +51,14 @@ void process_stdin(void)
 {
     t_map *map = read_map(stdin);
     
-    if (!map) {
+    if (!map) 
+	{
         fprintf(stderr, "map error\n");
         return;
     }
     
-    if (!solve_bsq(map)) {
+    if (!solve_bsq(map)) 
+	{
         fprintf(stderr, "map error\n");
         free_map(map);
         return;
@@ -66,25 +75,29 @@ t_map *read_map(FILE *fp)
     ssize_t read;
     
     read = getline(&line, &len, fp);
-    if (read <= 0) {
+    if (read <= 0) 
+	{
         free(line);
         return NULL;
     }
     
     t_map *map = malloc(sizeof(t_map));
-    if (!map) {
+    if (!map) 
+	{
         free(line);
         return NULL;
     }
     
-    if (!parse_header(line, map)) {
+    if (!parse_header(line, map)) 
+	{
         free(line);
         free(map);
         return NULL;
     }
     free(line);
     
-    if (!read_map_data(fp, map)) {
+    if (!read_map_data(fp, map)) 
+	{
         free_map(map);
         return NULL;
     }
@@ -167,7 +180,8 @@ int read_map_data(FILE *fp, t_map *map)
     
     map->cols = -1;
     
-    while ((read = getline(&line, &len, fp)) > 0 && row < map->rows) {
+    while ((read = getline(&line, &len, fp)) > 0 && row < map->rows) 
+	{
         if (line[read - 1] == '\n')
             line[read - 1] = '\0';
         else
@@ -175,25 +189,32 @@ int read_map_data(FILE *fp, t_map *map)
         
         int col_count = read - 1;
         
-        if (map->cols == -1) {
+        if (map->cols == -1) 
+		{
             map->cols = col_count;
-            if (map->cols <= 0) {
+            if (map->cols <= 0) 
+			{
                 free(line);
                 return 0;
             }
-        } else if (col_count != map->cols) {
+        } 
+		else if (col_count != map->cols) 
+		{
             free(line);
             return 0;
         }
         
         map->grid[row] = malloc(map->cols + 1);
-        if (!map->grid[row]) {
+        if (!map->grid[row]) 
+		{
             free(line);
             return 0;
         }
         
-        for (int i = 0; i < map->cols; i++) {
-            if (line[i] != map->empty && line[i] != map->obstacle) {
+        for (int i = 0; i < map->cols; i++) 
+		{
+            if (line[i] != map->empty && line[i] != map->obstacle) 
+			{
                 free(line);
                 return 0;
             }
@@ -217,9 +238,11 @@ int solve_bsq(t_map *map)
     if (!dp)
         return 0;
     
-    for (int i = 0; i < map->rows; i++) {
+    for (int i = 0; i < map->rows; i++) 
+	{
         dp[i] = calloc(map->cols, sizeof(int));
-        if (!dp[i]) {
+        if (!dp[i]) 
+		{
             for (int j = 0; j < i; j++)
                 free(dp[j]);
             free(dp);
@@ -231,12 +254,18 @@ int solve_bsq(t_map *map)
     int max_row = 0;
     int max_col = 0;
     
-    for (int i = 0; i < map->rows; i++) {
-        for (int j = 0; j < map->cols; j++) {
-            if (map->grid[i][j] == map->empty) {
-                if (i == 0 || j == 0) {
+    for (int i = 0; i < map->rows; i++) 
+	{
+        for (int j = 0; j < map->cols; j++) 
+		{
+            if (map->grid[i][j] == map->empty) 
+			{
+                if (i == 0 || j == 0) 
+				{
                     dp[i][j] = 1;
-                } else {
+                } 
+				else 
+				{
                     int min_val = dp[i-1][j];
                     if (dp[i][j-1] < min_val)
                         min_val = dp[i][j-1];
@@ -245,20 +274,26 @@ int solve_bsq(t_map *map)
                     dp[i][j] = min_val + 1;
                 }
                 
-                if (dp[i][j] > max_size) {
+                if (dp[i][j] > max_size) 
+				{
                     max_size = dp[i][j];
                     max_row = i;
                     max_col = j;
                 }
-            } else {
+            } 
+			else 
+			{
                 dp[i][j] = 0;
             }
         }
     }
     
-    if (max_size > 0) {
-        for (int i = max_row - max_size + 1; i <= max_row; i++) {
-            for (int j = max_col - max_size + 1; j <= max_col; j++) {
+    if (max_size > 0) 
+	{
+        for (int i = max_row - max_size + 1; i <= max_row; i++) 
+		{
+            for (int j = max_col - max_size + 1; j <= max_col; j++) 
+			{
                 map->grid[i][j] = map->full;
             }
         }
@@ -273,16 +308,20 @@ int solve_bsq(t_map *map)
 
 void print_map(t_map *map)
 {
-    for (int i = 0; i < map->rows; i++) {
+    for (int i = 0; i < map->rows; i++) 
+	{
         printf("%s\n", map->grid[i]);
     }
 }
 
 void free_map(t_map *map)
 {
-    if (map) {
-        if (map->grid) {
-            for (int i = 0; i < map->rows; i++) {
+    if (map) 
+	{
+        if (map->grid) 
+		{
+            for (int i = 0; i < map->rows; i++) 
+			{
                 if (map->grid[i])
                     free(map->grid[i]);
             }
