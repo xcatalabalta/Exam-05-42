@@ -1,0 +1,211 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bsq.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/09 16:03:34 by fcatala-          #+#    #+#             */
+/*   Updated: 2025/12/09 16:30:02 by fcatala-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#define _POSIX_C_SOURCE 200809L
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+typedef struct {
+    size_t rows;
+    size_t cols;
+    char emp, obs, full;
+    char *data; // Flat 1D array for the map characters
+} t_map;
+
+// Helper to handle errors cleanly and return a failure code
+static int ft_err(void) 
+{
+    fputs("map error\n", stderr);
+    return -1;
+}
+
+// Minimal function to find the minimum of three numbers
+static int min3(int a, int b, int c) 
+{
+    if (a <= b && a <= c) 
+		return a;
+    if (b <= a && b <= c) 
+		return b;
+    return c;
+}
+
+static void solve_and_print(t_map *m) 
+{
+    int *dp = calloc(m->rows * m->cols, sizeof(int));
+    if (!dp) 
+		return; // Should ideally handle allocation failure
+
+    int max_val = 0;
+    size_t max_r = 0, max_c = 0;
+
+    // Iterate through every cell (r=row, c=col)
+    for (size_t r = 0; r < m->rows; ++r) 
+	{
+        for (size_t c = 0; c < m->cols; ++c) 
+		{
+            // Calculate index for flat arrays
+            size_t i = r * m->cols + c;
+
+            if (m->data[i] == m->obs) 
+			{
+                dp[i] = 0;
+            } 
+			else if (r == 0 || c == 0) 
+			{
+                dp[i] = 1; // First row/col can only be size 1 max
+            } 
+			else 
+			{
+                // The Magic Logic: 1 + min(left, up, up-left)
+                dp[i] = 1 + min3(dp[i - 1], dp[i - m->cols], dp[i - m->cols - 1]);
+            }
+
+            if (dp[i] > max_val) 
+			{
+                max_val = dp[i];
+                max_r = r;
+                max_c = c;
+            }
+        }
+    }
+
+    // Fill the map with the 'full' character
+    // We traverse back from the bottom-right corner of the square
+    for (int r = 0; r < max_val; ++r) 
+	{
+        for (int c = 0; c < max_val; ++c) 
+		{
+            m->data[(max_r - r) * m->cols + (max_c - c)] = m->full;
+        }
+    }
+
+    // Print the map
+    for (size_t r = 0; r < m->rows; ++r) 
+	{
+        // We can print line by line using pointer arithmetic
+        // fwrite is faster, but fputs/fprintf is required by your includes
+        for (size_t c = 0; c < m->cols; ++c)
+            fputc(m->data[r * m->cols + c], stdout);
+        fputc('\n', stdout);
+    }
+    
+    free(dp);
+}
+
+static int read_map(FILE *f, t_map *m) 
+{
+    if (fscanf(f, " %zu %c %c %c\n", &m->rows, &m->emp, &m->obs, &m->full) != 4) 
+		return -1;
+    if (m->rows == 0 || m->emp == m->obs || m->emp == m->full || m->obs == m->full) 
+		return -1;
+
+    char *line = NULL;
+    size_t cap = 0;
+    ssize_t len;
+    
+    // We assume the first line defines the width
+    len = getline(&line, &cap, f);
+    if (len <= 1) 
+	{ 
+		free(line); 
+		return -1; 
+	} // Check empty or just newline
+    m->cols = len - 1; // Exclude \n
+
+    // Allocate the ENTIRE map at once. simplified memory management.
+    m->data = malloc(m->rows * m->cols);
+    if (!m->data) 
+	{ 
+		free(line); 
+		return -1; 
+	}
+
+    // Copy first line (already read)
+    for (size_t c = 0; c < m->cols; c++) 
+	{
+        if (line[c] != m->emp && line[c] != m->obs) 
+		{ 
+			free(line); 
+			return -1; 
+		}
+        m->data[c] = line[c]; // Row 0
+    }
+
+    // Read remaining rows
+    for (size_t r = 1; r < m->rows; ++r) 
+	{
+        len = getline(&line, &cap, f);
+        if ((size_t)len != m->cols + 1) 
+		{ 
+			free(line); 
+			return -1; 
+		} // +1 for \n
+        
+        for (size_t c = 0; c < m->cols; c++) 
+		{
+            if (line[c] != m->emp && line[c] != m->obs) 
+			{ 
+				free(line); 
+				return -1; 
+			}
+            m->data[r * m->cols + c] = line[c];
+        }
+    }
+    free(line);
+    return 0;
+}
+
+static int process(FILE *f) 
+{
+    t_map m = {0};
+    if (read_map(f, &m) != 0) 
+	{
+        if (m.data) 
+			free(m.data);
+        return ft_err();
+    }
+    solve_and_print(&m);
+    free(m.data);
+    return 0;
+}
+
+int main(int argc, char **argv) 
+{
+    if (argc <= 1) 
+	{
+        if (process(stdin) == 0)
+			fputc('\n', stdout);
+    } 
+	else 
+	{
+        for (int i = 1; i < argc; ++i) 
+		{
+            FILE *fp = fopen(argv[i], "r");
+            if (!fp) 
+			{
+                ft_err();
+            } 
+			else 
+			{
+                process(fp);
+                fclose(fp);
+            }
+            // Subject requirement: separate maps with line break
+            // Note: Your logic adds it after every map, even the last.
+            // 42 usually asks for line breaks *between* outputs.
+            // I kept your behavior of printing it after every map.
+            fputc('\n', stdout); 
+        }
+    }
+    return 0;
+}

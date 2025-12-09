@@ -1,0 +1,119 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bsq.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/09 14:01:18 by fcatala-          #+#    #+#             */
+/*   Updated: 2025/12/09 16:02:45 by fcatala-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#define _POSIX_C_SOURCE 200809L
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct s_map
+{
+	size_t	rows;
+	size_t	cols;
+	char 	empty;
+	char	obs;
+	char	full;
+	char	**grid;
+} t_map;
+
+static int ft_err(void)
+{
+	fputs("map error\n", stderr);
+	return (-1);
+}
+
+static int parse_header(FILE *fd, t_map *map)
+{
+	size_t 	rows = 0;
+	char 	em = 0;
+	char	ob = 0;
+	char	fu = 0;
+
+	int n = fscanf(fd, "%zu %c %c %c\n", &rows, &em, &ob, &fu);
+	if (n != 4)
+		return (1);
+	if (rows == 0)
+		return (1);
+	if (em == ob || em == fu || ob == fu)
+		return (1);
+	
+	map->rows = rows;
+	map->empty = em;
+	map->obs = ob;
+	map->full = fu;
+
+	return (0);
+}
+
+static int parser(FILE *fd, t_map *map)
+{
+	map->rows = 0;
+	map->cols = 0;
+	map->empty = 0;
+	map->obs = 0;
+	map->full = 0;
+	map->grid = NULL;
+
+	if (parse_header(fd, map))
+	{
+		return (1);
+	}
+	if (read_data(fd, map))//TO CODE
+	{
+		return (1);
+	}
+	return (0);
+}
+
+
+static void process_stream(FILE *fd)
+{
+	t_map map;
+
+	if (parser(fd, &map))
+	{
+		ft_err();
+		return;
+	}
+	solve_print(&m);//TO CODE
+}
+
+static void process_file(char *filename)
+{
+	FILE *fd = fopen(filename, "r");
+
+	if (!fd)
+	{
+		ft_err();
+		return;
+	}
+	process_stream(fd);
+	fclose(fd);
+}
+
+int main(int argc, char **argv)
+{
+	if (argc == 1)
+	{
+		process_stream(stdin);
+		fputs("\n", stdout);
+	}
+	else
+	{
+		for (int i = 1; i < argc; ++i)
+		{
+			process_file(argv[i]);
+			fprintf(stdout, "\n");
+		}
+		
+	}
+	return (0);
+}
