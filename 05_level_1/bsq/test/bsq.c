@@ -6,7 +6,7 @@
 /*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 17:33:26 by fcatala-          #+#    #+#             */
-/*   Updated: 2025/12/10 22:36:27 by fcatala-         ###   ########.fr       */
+/*   Updated: 2025/12/10 22:55:11 by fcatala-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
 
 typedef struct s_map{
     size_t rows;
