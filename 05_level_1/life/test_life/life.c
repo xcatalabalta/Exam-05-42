@@ -6,7 +6,7 @@
 /*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 10:22:13 by fcatala-          #+#    #+#             */
-/*   Updated: 2025/12/08 11:23:40 by fcatala-         ###   ########.fr       */
+/*   Updated: 2025/12/11 06:45:57 by fcatala-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,19 @@ typedef struct
 	int y;
 	int wr;
 } Pen;
+
+void ft_free(char **board, int r)
+{
+	if (!board)
+	{
+		return;
+	}
+	for (int i = 0; i < r; ++i)
+	{
+		free(board[i]);
+	}
+	free(board);
+}
 
 void fill(char **board, int w, int h, Pen *pen)
 {
@@ -69,11 +82,7 @@ int evolve(char **board, int w, int h)
 		evol[i] = calloc(w, sizeof(char));
 		if (!evol[i])
 		{
-			for (int k = 0; k < i; k++)
-			{
-				free(evol[k]);
-			}
-			free(evol);
+			ft_free(evol, i);
 			return (1);
 		}
 	}
@@ -106,11 +115,7 @@ int evolve(char **board, int w, int h)
 			board[y][x] = evol[y][x];
 		}
 	}
-	for (int y = 0; y < h; y++)
-	{
-		free(evol[y]);
-	}
-	free(evol);
+	ft_free(evol, h);
 	return (0);
 }
 
@@ -136,17 +141,13 @@ int main (int argc, char **argv)
 		board[i] = calloc(w, sizeof(char));
 		if (!board[i])
 		{
-			for (int k = 0; k < i; k++)
-			{
-				free(board[k]);
-			}
-			free(board);
+			ft_free(board, i);
 			return (1);
 		}
 	}
 	Pen pen={0, 0, 0};
 	fill (board, w, h, &pen);
-	//show(board, w, h);
+	//show(board, w, h);//To be used as test
 	for (int i = 0; i < iter; i++)
 	{
 		err = evolve(board, w, h);
@@ -155,10 +156,7 @@ int main (int argc, char **argv)
 	}
 	if (!err)
 		show(board, w, h);
-	for (int y = 0; y < h; y++)
-	{
-		free(board[y]);
-	}
-	free(board);
+	ft_free(board, h);
 	return (0);
 }
+
