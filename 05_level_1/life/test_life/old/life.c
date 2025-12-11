@@ -6,13 +6,20 @@
 /*   By: fcatala- <fcatala-@student.42barcelon      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 10:22:13 by fcatala-          #+#    #+#             */
-/*   Updated: 2025/12/11 08:53:04 by fcatala-         ###   ########.fr       */
+/*   Updated: 2025/12/11 08:50:26 by fcatala-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+typedef struct
+{
+	int x;
+	int y;
+	int wr;
+} Pen;
 
 static void ft_free(char **array, int rows)
 {
@@ -27,15 +34,30 @@ static void ft_free(char **array, int rows)
 	free(array);
 }
 
-static void fill(char **board, int w, int h)
+static void fill(char **board, int w, int h)//, Pen *pen)
 {
 	char c;
 
 	int nx = 0;
 	int ny = 0;
 	int nwr = 0;
+	//(void)pen;
 	while (read(0, &c, 1))
 	{
+		/*
+		if (c == 'w' && pen->y > 0)
+			pen->y--;
+		else if (c == 's' && pen->y < h)
+			pen->y++;
+		else if (c == 'a' && pen->x > 0)
+			pen->x--;
+		else if (c == 'd' && pen->x < w)
+			pen->x++;
+		else if (c == 'x')
+			pen->wr = !pen->wr;
+		if (pen->wr)
+			board[pen->y][pen->x] = 1;
+		*/
 		if (c == 'w' && ny > 0)
 			ny--;
 		else if (c == 's' && ny < h)
@@ -141,6 +163,9 @@ int main (int argc, char **argv)
 			return (1);
 		}
 	}
+	//Pen pen={0, 0, 0};
+	//Pen pen={0};//Enough to initialize
+	//fill (board, w, h, &pen);
 	fill (board, w, h);
 	//show(board, w, h);//To be used as test
 	for (int i = 0; i < iter; i++)
