@@ -178,7 +178,11 @@ bool vect2::operator==(const vect2 &other) const
 
 bool vect2::operator!=(const vect2 &other) const
 {
-	return ((x != other.x) && (y != other.y));
+	if (x != other.x)
+		return (false);
+	if (y != other.y)
+		return (false);
+	return (true);
 }
 
 vect2 operator*(int num, const vect2 &rh)
